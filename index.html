@@ -36,10 +36,12 @@ div {text-align: left;}
     <p style="text-align: center">
 </p>
 
-<script src="motomodel.js"></script>
-<script src="sketch.js"></script>
 
 
+<div class="slidecontainer" style="text-align:center">
+                  CG x $(a)$: <div id="a_sliderval" style="text-align:center">330</div>
+                  <input type="range" min="0" max="750" value="330" class="slider" id="a_slider">
+</div>
 <div >
             <!-- Attempt to make a canvas for a plot: -->
             <canvas id="eigchartCanvas" height=500px></canvas>
@@ -48,5 +50,8 @@ div {text-align: left;}
 <div id="sketch-holder">
        </div>
 
+
+<script src="motomodel.js"></script>
+<script src="sketch.js"></script>
 </body>
 </html>

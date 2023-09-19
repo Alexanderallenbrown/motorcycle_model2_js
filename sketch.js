@@ -16,6 +16,13 @@ var Rrw = 0.15875 // radius of real wheel
 var mrw = 2.462 //mass of rear wheel
 var v = 4 //m/s, fwd speed
 
+/////eigenvalue plot
+var eigPlot;
+
+////////INTERACTIVE ELEMENTS:
+
+var a_slider = document.getElementById("a_slider");
+
 var moto_model = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
 // moto_model.updateModel(v)
 var eigdata = moto_model.eigStudy(1,10,.1)
@@ -122,4 +129,17 @@ function initEigChart(data, refdata, myTitle, xlabel, ylabel) {
         eigPlot.update();
 
         return canv;
+      }
+
+
+      a_slider.oninput = function(){
+        a = this.value/1000.0;
+        moto_model.a = a
+        document.getElementById("a_sliderval").innerHTML = str(a)
+        //update eig data
+        eigdata = moto_model.eigStudy(1,10,.1)
+        eigPlot.data.datasets[0].data = eigdata[1]
+        eigPlot.data.datasets[1].data = eigdata[2]
+        eigPlot.update()
+        //print("wheel pos udpate: " +str(this.value))
       }
