@@ -95,17 +95,41 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
 
   }
 
+  this.getEigs4 = function(){
+    var A4math = math.matrix([ [this.A4.get(0,0),this.A4.get(0,1),this.A4.get(0,2),this.A4.get(0,3)],[this.A4.get(1,0),this.A4.get(1,1),this.A4.get(1,2),this.A4.get(1,3)],[this.A4.get(2,0),this.A4.get(2,1),this.A4.get(2,2),this.A4.get(2,3)],[this.A4.get(3,0),this.A4.get(3,1),this.A4.get(3,2),this.A4.get(3,3)]])
+    eigs = math.eigs(A4math)
+    this.eigs = eigs
+    this.eigs_re = [math.re(eigs.values._data[0]),math.re(eigs.values._data[1]),math.re(eigs.values._data[2]),math.re(eigs.values._data[3])]
+    this.eigs_im = [math.im(eigs.values._data[0]),math.im(eigs.values._data[1]),math.im(eigs.values._data[2]),math.im(eigs.values._data[3])]
+    return [this.eigs_re,this.eigs_im]
+  }
+
+  this.eigStudy(vmin,vmax,inc){
+    this.vvec = []
+    this.re1vec = []
+    this.re2vec = []
+    this.re3vec = []
+    this.re4vec = []
+    this.im1vec = []
+    this.im2vec = []
+    this.im3vec = []
+    this.im4vec = []
+    vnow = vmin
+    while (vnow<=vmax){
+      
+    }
+
+  }
+
   this.updateModel = function(v){
     this.buildSS4(v)
+    this.getEigs4()
     if(this.dbg){
       console.log("A matrix: \n"+this.A4.toString())
       console.log("B matrix: \n"+this.B4.toString())
+      console.log("eigs_re: "+this.eigs_re)
+      console.log("eigs_im: "+this.eigs_im)
     }
-
-  this.getEigs4 = function(){
-    var A4math = math.matrix([ [this.A4.get(0,0),this.A4.get(0,1),this.A4.get(0,2),this.A4.get(0,3)],[this.A4.get(1,0),this.A4.get(1,1),this.A4.get(1,2),this.A4.get(1,3)],[this.A4.get(2,0),this.A4.get(2,1),this.A4.get(2,2),this.A4.get(2,3)],[this.A4.get(3,0),this.A4.get(3,1),this.A4.get(3,2),this.A4.get(3,3)]])
-    
-  }
 
   }
 
