@@ -89,41 +89,86 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
     Btop = nj.zeros([2,2])
     Bbottom = nj.dot(inv22(this.M),nj.identity(2))
     this.B4 = nj.concatenate(Btop.T,Bbottom.T).T
+    this.getEigs4() //update so we have access to the eigs, and update stability boolean
   }
 
   this.buildRoadSS4 = function(){
 
   }
 
-  this.getEigs4 = function(){
-    var A4math = math.matrix([ [this.A4.get(0,0),this.A4.get(0,1),this.A4.get(0,2),this.A4.get(0,3)],[this.A4.get(1,0),this.A4.get(1,1),this.A4.get(1,2),this.A4.get(1,3)],[this.A4.get(2,0),this.A4.get(2,1),this.A4.get(2,2),this.A4.get(2,3)],[this.A4.get(3,0),this.A4.get(3,1),this.A4.get(3,2),this.A4.get(3,3)]])
-    eigs = math.eigs(A4math)
-    this.eigs = eigs
-    this.eigs_re = [math.re(eigs.values._data[0]),math.re(eigs.values._data[1]),math.re(eigs.values._data[2]),math.re(eigs.values._data[3])]
-    this.eigs_im = [math.im(eigs.values._data[0]),math.im(eigs.values._data[1]),math.im(eigs.values._data[2]),math.im(eigs.values._data[3])]
-    return [this.eigs_re,this.eigs_im]
+  this.checkStable = function(){
+    if(this.eigs_re == null) {
+        this.stable= false;
+        return
+     }
+      for(var i = 0; i < this.eigs_re.length; i++) {
+          if(this.eigs_re[i] > 0){
+             this.isStable = false;
+           }
+           else{
+             this.isStable = true;
+           }
+      }
   }
 
-  this.eigStudy(vmin,vmax,inc){
-    this.vvec = []
-    this.re1vec = []
-    this.re2vec = []
-    this.re3vec = []
-    this.re4vec = []
-    this.im1vec = []
-    this.im2vec = []
-    this.im3vec = []
-    this.im4vec = []
-    vnow = vmin
-    while (vnow<=vmax){
-      
+  this.getEigs4 = function(){
+    var A4math = math.matrix([ [this.A4.get(0,0),this.A4.get(0,1),this.A4.get(0,2),this.A4.get(0,3)],[this.A4.get(1,0),this.A4.get(1,1),this.A4.get(1,2),this.A4.get(1,3)],[this.A4.get(2,0),this.A4.get(2,1),this.A4.get(2,2),this.A4.get(2,3)],[this.A4.get(3,0),this.A4.get(3,1),this.A4.get(3,2),this.A4.get(3,3)]])
+    //console.log(A4math)
+    try{
+      eigs = math.eigs(A4math,.1)
+      this.eigs = eigs
+      this.eigs_re = [math.re(eigs.values._data[0]),math.re(eigs.values._data[1]),math.re(eigs.values._data[2]),math.re(eigs.values._data[3])]
+      this.eigs_im = [math.im(eigs.values._data[0]),math.im(eigs.values._data[1]),math.im(eigs.values._data[2]),math.im(eigs.values._data[3])]
+      this.checkStable()
+      return [this.eigs_re,this.eigs_im,this.isStable]
+    }
+    catch(err){
+      eigs = err
+      console.log(err.values)
+      return [[NaN,NaN,NaN,NaN],[NaN,NaN,NaN,NaN],false]
     }
 
   }
 
+  this.eigStudy = function(vmin,vmax,inc){
+    var vvec = []
+    var re1vec = []
+    var re2vec = []
+    var re3vec = []
+    var re4vec = []
+    var im1vec = []
+    var im2vec = []
+    var im3vec = []
+    var im4vec = []
+    var stabilityvec = []
+    vnow = vmin
+    while (vnow<=vmax){
+      console.log(vnow)
+      //build the model at this speed
+      this.buildSS4(vnow)
+      //get the eigs
+      eigs = this.getEigs4()
+      console.log(eigs)
+      vvec.push(vnow)
+      re1vec.push(eigs[0][0])
+      re2vec.push(eigs[0][1])
+      re3vec.push(eigs[0][2])
+      re4vec.push(eigs[0][3])
+      im1vec.push(eigs[1][0])
+      im2vec.push(eigs[1][1])
+      im3vec.push(eigs[1][2])
+      im4vec.push(eigs[1][3])
+      stabilityvec.push(eigs[2])
+      vnow+=inc
+    }
+    return [re1vec,re2vec,re3vec,re4vec,im1vec,im2vec,im3vec,im4vec,stabilityvec]
+  //now set the
+  }
+
   this.updateModel = function(v){
     this.buildSS4(v)
-    this.getEigs4()
+    // this.getEigs4()
+    this.eigStudy(1,10,.1)
     if(this.dbg){
       console.log("A matrix: \n"+this.A4.toString())
       console.log("B matrix: \n"+this.B4.toString())
@@ -144,6 +189,8 @@ function inv22(M){
   det = det22(M)
   return nj.array([[M.get(1,1)/det,-M.get(0,1)/det],[-M.get(1,0)/det,M.get(0,0)/det]])
 }
+
+
 
 //////// TEST ///////
 lam = 1.13
