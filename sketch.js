@@ -36,7 +36,7 @@ var eigdata = moto_model.eigStudy(1,10,.1)
 
 function setup() {
   createCanvas(800, 400,WEBGL);
-  initEigChart(eigdata, eigdata, "eigenvalues as a function of speed (all real parts must be <0 for stability)", "speed (m/s)", "eig (1/s)")
+  initEigChart(eigdata, eigdata, "eigenvalues as a function of speed (all real parts must be <0 for stability; stable speeds shown in green)", "speed (m/s)", "eig (1/s)")
 }
 
 function draw() {
@@ -136,10 +136,32 @@ function initEigChart(data, refdata, myTitle, xlabel, ylabel) {
         a = this.value/1000.0;
         moto_model.a = a
         document.getElementById("a_sliderval").innerHTML = str(a)
+
+        updateEigChart()
+        //print("wheel pos udpate: " +str(this.value))
+      }
+
+
+      updateEigChart = function(){
         //update eig data
         eigdata = moto_model.eigStudy(1,10,.1)
         eigPlot.data.datasets[0].data = eigdata[1]
         eigPlot.data.datasets[1].data = eigdata[2]
+        //point colors to indicate stability:
+        var pointBGColors_active = []
+        // console.log("starting color thing")
+        for (i = 0; i < eigdata[3].length; i++) {
+          console.log(eigdata[3][i])
+          if (eigdata[3][i]==true) {
+              pointBGColors_active.push("rgba(0,125,0,1)");
+              // console.log("STABLE!!")
+          } else {
+              pointBGColors_active.push("rgba(0,0,0,1)");
+          }
+        }
+        eigPlot.data.datasets[0].pointBackgroundColor = pointBGColors_active
+        eigPlot.data.datasets[0].borderColor = pointBGColors_active
+        eigPlot.data.datasets[1].pointBackgroundColor = pointBGColors_active
+        eigPlot.data.datasets[1].borderColor = pointBGColors_active
         eigPlot.update()
-        //print("wheel pos udpate: " +str(this.value))
       }

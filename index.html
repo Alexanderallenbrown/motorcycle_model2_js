@@ -38,13 +38,13 @@ div {text-align: left;}
 
 
 
-<div class="slidecontainer" style="text-align:center">
-                  CG x $(a)$: <div id="a_sliderval" style="text-align:center">330</div>
-                  <input type="range" min="0" max="750" value="330" class="slider" id="a_slider">
+<div class="slidecontainer" style="text-align:center" width=75%>
+                  CG x $(a)$: <label id="a_sliderval" style="text-align:center" display="inline" float="right">.3386</label> m
+                  <input type="range" display="inline-block" min="0" max="750" value="339" class="slider" id="a_slider">
 </div>
 <div >
             <!-- Attempt to make a canvas for a plot: -->
-            <canvas id="eigchartCanvas" height=500px></canvas>
+            <canvas id="eigchartCanvas" width="500" height="500"></canvas>
 </div>
 
 <div id="sketch-holder">
