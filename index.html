@@ -7,11 +7,11 @@ h1 {text-align: center;}
 p {text-align: center;}
 div {text-align: left;}
 </style>
-    <title>Motorcycle Model</title>
+    <title>4th Order Point-Mass Motorcycle Model</title>
 
 <!-- <script type="text/javascript" src="https://rawgit.com/lmccart/p5.js/master/lib/addons/p5.dom.js"></script> -->
 <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
 <script type="text/x-mathjax-config">
   MathJax.Hub.Config({
@@ -32,10 +32,21 @@ div {text-align: left;}
 <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
 </head>
 <body>
-    <h1>Motorcycle Model</h1>
+    <h1>4th-Order Point-Mass Motorcycle Model</h1>
     <p style="text-align: center">
 </p>
 
-<script src="model.js"></script>
+<script src="motomodel.js"></script>
+<script src="sketch.js"></script>
+
+
+<div >
+            <!-- Attempt to make a canvas for a plot: -->
+            <canvas id="eigchartCanvas" height=500px></canvas>
+</div>
+
+<div id="sketch-holder">
+       </div>
+
 </body>
 </html>

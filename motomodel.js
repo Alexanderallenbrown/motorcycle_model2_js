@@ -97,6 +97,7 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
   }
 
   this.checkStable = function(){
+
     if(this.eigs_re == null) {
         this.stable= false;
         return
@@ -104,6 +105,7 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
       for(var i = 0; i < this.eigs_re.length; i++) {
           if(this.eigs_re[i] > 0){
              this.isStable = false;
+             break
            }
            else{
              this.isStable = true;
@@ -132,43 +134,42 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
 
   this.eigStudy = function(vmin,vmax,inc){
     var vvec = []
-    var re1vec = []
-    var re2vec = []
-    var re3vec = []
-    var re4vec = []
-    var im1vec = []
-    var im2vec = []
-    var im3vec = []
-    var im4vec = []
+    var revec = []
+    var imvec = []
     var stabilityvec = []
     vnow = vmin
     while (vnow<=vmax){
-      console.log(vnow)
+      // console.log(vnow)
       //build the model at this speed
       this.buildSS4(vnow)
       //get the eigs
       eigs = this.getEigs4()
-      console.log(eigs)
+      // console.log(eigs)
       vvec.push(vnow)
-      re1vec.push(eigs[0][0])
-      re2vec.push(eigs[0][1])
-      re3vec.push(eigs[0][2])
-      re4vec.push(eigs[0][3])
-      im1vec.push(eigs[1][0])
-      im2vec.push(eigs[1][1])
-      im3vec.push(eigs[1][2])
-      im4vec.push(eigs[1][3])
-      stabilityvec.push(eigs[2])
+      revec.push({x: vnow,y: eigs[0][0]},
+                {x: vnow,y: eigs[0][1]},
+                {x: vnow,y: eigs[0][2]},
+                {x: vnow,y: eigs[0][3]})
+
+      imvec.push({x: vnow,y: eigs[1][0]},
+                {x: vnow,y: eigs[1][1]},
+                {x: vnow,y: eigs[1][2]},
+                {x: vnow,y: eigs[1][3]})
+      stabilityvec.push(this.isStable)
+      stabilityvec.push(this.isStable)
+      stabilityvec.push(this.isStable)
+      stabilityvec.push(this.isStable)
+
       vnow+=inc
     }
-    return [re1vec,re2vec,re3vec,re4vec,im1vec,im2vec,im3vec,im4vec,stabilityvec]
+    return [vvec,revec,imvec,stabilityvec]
   //now set the
   }
 
   this.updateModel = function(v){
     this.buildSS4(v)
     // this.getEigs4()
-    this.eigStudy(1,10,.1)
+    this.eigdata = this.eigStudy(1,10,.1)
     if(this.dbg){
       console.log("A matrix: \n"+this.A4.toString())
       console.log("B matrix: \n"+this.B4.toString())
@@ -192,24 +193,24 @@ function inv22(M){
 
 
 
-//////// TEST ///////
-lam = 1.13
-hrf = .25606
-a = .3386//meters, distance from rear axle to CG in x direction
-b = .767//meters, wheelbase of bike
-c = .023//.08//meters, trail
-hrf = .25606//meters, rear frame CG height
-mr = 11.065//kg, rear frame mass inc. rider
-xff = .62218//position of front frame CG
-yff = 0
-zff = .46531
-mff = 2.2047 //kg, fork mass
-Rfw = .15875
-mfw = 1.486 //kg, wheel mass
-Rrw = 0.15875 // radius of real wheel
-mrw = 2.462 //mass of rear wheel
-v = 4 //m/s, fwd speed
+// //////// TEST ///////
+// lam = 1.13
+// hrf = .25606
+// a = .3386//meters, distance from rear axle to CG in x direction
+// b = .767//meters, wheelbase of bike
+// c = .023//.08//meters, trail
+// hrf = .25606//meters, rear frame CG height
+// mr = 11.065//kg, rear frame mass inc. rider
+// xff = .62218//position of front frame CG
+// yff = 0
+// zff = .46531
+// mff = 2.2047 //kg, fork mass
+// Rfw = .15875
+// mfw = 1.486 //kg, wheel mass
+// Rrw = 0.15875 // radius of real wheel
+// mrw = 2.462 //mass of rear wheel
+// v = 4 //m/s, fwd speed
 
 
-var model = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
-model.updateModel(v)
+// var moto_model = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
+// moto_model.updateModel(v)
