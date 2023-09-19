@@ -101,6 +101,12 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
       console.log("A matrix: \n"+this.A4.toString())
       console.log("B matrix: \n"+this.B4.toString())
     }
+
+  this.getEigs4 = function(){
+    var A4math = math.matrix([ [this.A4.get(0,0),this.A4.get(0,1),this.A4.get(0,2),this.A4.get(0,3)],[this.A4.get(1,0),this.A4.get(1,1),this.A4.get(1,2),this.A4.get(1,3)],[this.A4.get(2,0),this.A4.get(2,1),this.A4.get(2,2),this.A4.get(2,3)],[this.A4.get(3,0),this.A4.get(3,1),this.A4.get(3,2),this.A4.get(3,3)]])
+    
+  }
+
   }
 
 }
