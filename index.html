@@ -2,56 +2,159 @@
 <html>
 
 <head>
-<style>
-h1 {text-align: center;}
-p {text-align: center;}
-div {text-align: left;}
+  <style>
+  h1 {text-align: center;}
+  p {text-align: center;}
+  div {text-align: left;}
 </style>
-    <title>4th Order Point-Mass Motorcycle Model</title>
+<title>4th Order Point-Mass Motorcycle Model</title>
 
 <!-- <script type="text/javascript" src="https://rawgit.com/lmccart/p5.js/master/lib/addons/p5.dom.js"></script> -->
 <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
 <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      processEscapes: true
-    }
-  });
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    processEscapes: true
+  }
+});
 </script>
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
- <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
 <!-- <script type="text/javascript"
-        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script> -->
 <script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
 </head>
 <body>
-    <h1>4th-Order Point-Mass Motorcycle Model</h1>
-    <p style="text-align: center">
-</p>
+  <h1>4th-Order Point-Mass Motorcycle Model</h1>
+  <p style="text-align: center"> Nominal parameters are based on Lafayette College's autonomous Razor MX350 electric minibike <br>
+  Note that this model describes "hands-free" uncontrolled riding; no robotic or human steering or leaning!</p>
+
+  <div id="table-top" style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
+    <div style="display: table-row; height: 25vw">
+      <div id="sketch-holder" style="width: 40vw; display: table-cell;vertical-align: top; height: 250px; padding:1em; background: none">
+        <!-- <canvas id="sketch-canvas" style="width: 80vw; height:30vw"> -->
+      </div>
+
+      <small>
+
+      <div style="display: table-cell; vertical-align: top; width: 20vw; height: 250px; background: none; padding: 1em">
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Forward Speed: <label id="v_sliderval" style="text-align:center" display="inline" float="right">4.0</label> m/s <br>
+          <input type="range" display="inline-block" min="1" max="100" value="40" class="slider" id="v_slider">
+        </div>
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Rear Frame/Rider CG x (m): <label id="a_sliderval" style="text-align:center" display="inline" float="right">.3386</label> m <br>
+          <input type="range" display="inline-block" min="0" max="750" value="339" class="slider" id="a_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Rear Frame/Rider CG z (m): <label id="h_sliderval" style="text-align:center" display="inline" float="right">.256</label> m <br>
+          <input type="range" display="inline-block" min="0" max="750" value="256" class="slider" id="h_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Rear Frame/Rider mass (kg): <label id="mr_sliderval" style="text-align:center" display="inline" float="right">11</label> kg <br>
+          <input type="range" display="inline-block" min="1" max="500" value="110" class="slider" id="mr_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Front Frame CG X offset: <label id="xf_sliderval" style="text-align:center" display="inline" float="right">-.14</label> m <br>
+          <input type="range" display="inline-block" min="-300" max="300" value="-140" class="slider" id="xf_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Front Frame CG Z Location: <label id="zf_sliderval" style="text-align:center" display="inline" float="right">.46</label> m <br>
+          <input type="range" display="inline-block" min="1" max="1000" value="465" class="slider" id="zf_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Front Frame mass: <label id="mf_sliderval" style="text-align:center" display="inline" float="right">2.2</label> kg <br>
+          <input type="range" display="inline-block" min="1" max="500" value="220" class="slider" id="mf_slider">
+        </div>
+
+
+      </div>
+      <div style="display: table-cell; vertical-align: top; height: 250px; width= 20vw;background: none; padding: 1em">
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Front Wheel radius: <label id="Rfw_sliderval" style="text-align:center" display="inline" float="right">.159</label> m <br>
+          <input type="range" display="inline-block" min="1" max="1000" value="159" class="slider" id="Rfw_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Front Wheel mass: <label id="mfw_sliderval" style="text-align:center" display="inline" float="right">1.5</label> kg <br>
+          <input type="range" display="inline-block" min="1" max="100" value="15" class="slider" id="mfw_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Rear Wheel radius: <label id="Rrw_sliderval" style="text-align:center" display="inline" float="right">.159</label> m <br>
+          <input type="range" display="inline-block" min="1" max="1000" value="159" class="slider" id="Rrw_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Rear Wheel mass: <label id="mrw_sliderval" style="text-align:center" display="inline" float="right">2.5</label> kg <br>
+          <input type="range" display="inline-block" min="1" max="100" value="25" class="slider" id="mrw_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Wheelbase: <label id="b_sliderval" style="text-align:center" display="inline" float="right">.767</label> m <br>
+          <input type="range" display="inline-block" min="500" max="1000" value="767" class="slider" id="b_slider">
+        </div>
 
 
 
-<div class="slidecontainer" style="text-align:center" width=75%>
-                  CG x $(a)$: <label id="a_sliderval" style="text-align:center" display="inline" float="right">.3386</label> m
-                  <input type="range" display="inline-block" min="0" max="750" value="339" class="slider" id="a_slider">
-</div>
-<div >
-            <!-- Attempt to make a canvas for a plot: -->
-            <canvas id="eigchartCanvas" width="500" height="500"></canvas>
-</div>
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Trail: <label id="c_sliderval" style="text-align:center" display="inline" float="right">.023</label> m <br>
+          <input type="range" display="inline-block" min="1" max="1000" value="230" class="slider" id="c_slider">
+        </div>
 
-<div id="sketch-holder">
-       </div>
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Rake Angle: <label id="lam_sliderval" style="text-align:center" display="inline" float="right">25.25</label> degrees <br>
+          <input type="range" display="inline-block" min="1" max="450" value="255" class="slider" id="lam_slider">
+        </div>
+
+      </div>
+    </small>
+    </div>
+
+  </div>
+
+  <div style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
+    <div style="display: table-row; height: 30vw">
+      <div id="plot-holder" style="width: 50vw; display: table-cell; vertical-align: center; height: auto; padding:1em; background: none">
+        <canvas id="eigchartCanvas"></canvas>
+
+          <!-- Attempt to make a canvas for a plot: -->
+          <!-- <canvas id="eigchartCanvas" style="width: 45vw; height:45vw"></canvas> -->
+      </div>
+
+    </div>
+  </div>
 
 
-<script src="motomodel.js"></script>
-<script src="sketch.js"></script>
+
+  <div style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
+    <div style="display: table-row">
+      <h2> How to interpret the eigenvalue plot: </h2>
+      <p style="text-align: left"> "Eigenvalues" tell us how the system responds to its own stored energy.
+        In a spring-mass oscillator, the "eigenvalues" give us the vibration frequency of the system.
+        For a system that has exponential behavior, like a turkey heating in the oven, the eigvenvalues tell us how fast the system reaches its steady state.
+        In general, systems can have a combination "real" eigenvalues, which represent exponential growth (if the eigenvalue is greater than 0) or decay (if the eigenvalue is less than 0), or "complex" eigenvalues with an imaginary part, which indicate that the system will oscillate.
+        The frequency of oscillations in the system is dictated by how large the imaginary parts of any complex eigenvalues are. A larger complex part means fast oscillation.
+        For real eigenvalues or parts of complex eigenvalues, a large negative number means faster decay. Any positive real part of any eigenvalue means that the system is unstable. For the motorcycle, this means the bike will fall over.
+        When all of the four eigenvalues in our motorcycle model have negative real parts, it means the bike can stay upright by itself without a rider (think hands-free riding).
+      </p>
+    </div>
+  </div>
+
+  <script src="motomodel.js"></script>
+  <script src="sketch.js"></script>
 </body>
 </html>

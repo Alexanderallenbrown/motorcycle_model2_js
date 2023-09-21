@@ -27,23 +27,24 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
   this.Rrw = Rrw
   //rear wheel mass
   this.mrw = mrw
-  this.xfw = b
 
-  //gyroscopic inertias
-  this.Jyyf = this.mfw*Math.pow(this.Rfw,2)
-  this.Jyyr = this.mrw*Math.pow(this.Rrw,2)
-  //rear frame height
-  this.mr = mrf+mrw
-  this.h = (mrf*hrf+mrw*Rrw)/(mr)
-  //front frame totals
-  this.mf = this.mff+this.mfw
-  this.xf = (this.mff*this.xff+this.mfw*this.xfw)/(this.mf)
-  this.hf = (this.zff*this.mff+this.Rfw*this.mfw)/(this.mf)
-  //perp dist between steer axis and front frame
-  this.u = this.hf*Math.cos(this.lam)-(this.b+this.c-this.xf)*Math.sin(this.lam)
-  //this.update(v)
+
 
   this.buildMDK = function(v){
+    this.xfw = this.b
+    //gyroscopic inertias
+    this.Jyyf = this.mfw*Math.pow(this.Rfw,2)
+    this.Jyyr = this.mrw*Math.pow(this.Rrw,2)
+    //rear frame height
+    this.mr = this.mrf+this.mrw
+    this.h = (this.mrf*this.hrf+this.mrw*Rrw)/(this.mr)
+    //front frame totals
+    this.mf = this.mff+this.mfw
+    this.xf = (this.mff*this.xff+this.mfw*this.xfw)/(this.mf)
+    this.hf = (this.zff*this.mff+this.Rfw*this.mfw)/(this.mf)
+    //perp dist between steer axis and front frame
+    this.u = this.hf*Math.cos(this.lam)-(this.b+this.c-this.xf)*Math.sin(this.lam)
+    //this.update(v)
     //gyroscopic moment terms
     Sf = this.Jyyf/this.Rfw
     Sr = this.Jyyr/this.Rrw
@@ -103,7 +104,7 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
         return
      }
       for(var i = 0; i < this.eigs_re.length; i++) {
-          if(this.eigs_re[i] > 0){
+          if(this.eigs_re[i] >= 0){
              this.isStable = false;
              break
            }
@@ -126,7 +127,7 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
     }
     catch(err){
       eigs = err
-      console.log(err.values)
+      // console.log(err.values)
       return [[NaN,NaN,NaN,NaN],[NaN,NaN,NaN,NaN],false]
     }
 
