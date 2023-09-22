@@ -41,6 +41,7 @@ var lam_slider = document.getElementById("lam_slider");
 var v_slider = document.getElementById("v_slider");
 
 var moto_model = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
+var moto_model_ref = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
 var renderer;
 // moto_model.updateModel(v)
 var currVel = 4;
@@ -49,7 +50,7 @@ var eigdata_ref = moto_model.eigStudy(1,10,.1)
 var stepdata = moto_model.stepResponse(currVel,.1,5,.001)
 var rolldata = stepdata[0]
 var steerdata = stepdata[1]
-var stepdata_ref = moto_model.stepResponse(currVel,.1,5,.001)
+var stepdata_ref = moto_model_ref.stepResponse(currVel,.1,5,.001)
 var rolldata_ref = stepdata_ref[0]
 var steerdata_ref = stepdata_ref[1]
 
@@ -460,8 +461,11 @@ updateEigChart = function(){
   eigPlot.update()
   //do another step response and update those plots too
   stepdata = moto_model.stepResponse(currVel,.1,5,.001)
+  stepdata_ref = moto_model_ref.stepResponse(currVel,.1,5,.001)
   rollChart.data.datasets[0].data = stepdata[0]
   steerChart.data.datasets[0].data = stepdata[1]
+  rollChart.data.datasets[1].data = stepdata_ref[0]
+  steerChart.data.datasets[1].data = stepdata_ref[1]
   rollChart.update()
   steerChart.update()
   renderer.model = moto_model
