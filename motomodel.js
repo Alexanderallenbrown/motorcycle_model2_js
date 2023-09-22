@@ -133,6 +133,40 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
 
   }
 
+  this.stepResponse = function(v,stepMag,stepTime,dt){
+    var tnow = 0
+    var rollvec = []
+    var steervec = []
+    this.buildSS4(v)
+    //we are going to use Euler integration.
+    // x(k) = (eye(4)+A*dt)*x(k-1)+B*dt*u(k-1)
+    var Ad = nj.add(nj.identity(4),this.A4.multiply(dt))
+    var Bd = this.B4.multiply(dt)
+    this.Ad = Ad
+    this.Bd = Bd
+    var u = nj.array([[0],[stepMag]])
+    var xd = nj.zeros([4,1])
+
+    //set up loop
+    while (tnow<=stepTime){
+      //add to my vector
+      rollvec.push({x:tnow,y:xd.get(0,0)*180/3.1415})
+      steervec.push({x:tnow,y:xd.get(1,0)*180/3.1415})
+      //update the simulation ONLY if the vehicle hasn't tipped over.
+      if(Math.abs(xd.get(0,0))<1.57){
+        xd = nj.add(nj.dot(Ad,xd),nj.dot(Bd,u))
+      }
+      else{
+        xd = nj.array([[1.57*Math.sign(xd.get(0,0))],[xd.get(1,0)],[0],[0]])
+      }
+      //increment time
+      tnow+=dt
+      // console.log(rollvec)
+    }
+    return [rollvec,steervec]
+
+  }
+
   this.eigStudy = function(vmin,vmax,inc){
     var vvec = []
     var revec = []

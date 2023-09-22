@@ -14,10 +14,12 @@ var Rfw = .15875
 var mfw = 1.486 //kg, wheel mass
 var Rrw = 0.15875 // radius of real wheel
 var mrw = 2.462 //mass of rear wheel
-var v = 4 //m/s, fwd speed
+var v = 4; //m/s, fwd speed
 
 /////eigenvalue plot
 var eigPlot;
+var rollChart;
+var steerChart;
 
 ////////INTERACTIVE ELEMENTS:
 
@@ -39,8 +41,15 @@ var v_slider = document.getElementById("v_slider");
 var moto_model = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
 var renderer;
 // moto_model.updateModel(v)
+var currVel = 4;
 var eigdata = moto_model.eigStudy(1,10,.1)
 var eigdata_ref = moto_model.eigStudy(1,10,.1)
+var stepdata = moto_model.stepResponse(currVel,.1,5,.001)
+var rolldata = stepdata[0]
+var steerdata = stepdata[1]
+var stepdata_ref = moto_model.stepResponse(currVel,.1,5,.001)
+var rolldata_ref = stepdata_ref[0]
+var steerdata_ref = stepdata_ref[1]
 
 // var inconsolata;
 // function preload() {
@@ -57,9 +66,11 @@ function setup() {
   myWidth = canvasDiv.offsetWidth;
   myHeight = 300//canvasDiv.offsetHeight;
   var sketchCanvas = createCanvas(myWidth,myHeight);
-  console.log(sketchCanvas);
+  // console.log(sketchCanvas);
   sketchCanvas.parent("sketch-holder");
   initEigChart(eigdata, eigdata_ref, "eigenvalues as a function of speed; stable speeds shown in green", "speed (m/s)", "eig (1/s)")
+  initRollChart(rolldata,rolldata_ref,"Response to 0.1 Nm Step in Handlebar Torque at "+str(currVel)+" m/s","Time (s)","Roll Angle (deg)")
+  initSteerChart(steerdata,steerdata_ref,"Steer Step Response","Time (s)","Steer Angle (deg)")
   renderer = new modelRenderer(moto_model)
 }
 
@@ -83,7 +94,7 @@ function modelRenderer(motomodel){
     strokeWeight(1)
     //translate to the point where the rear wheel contacts ground
     translate(myWidth/2.0-this.model.b/2*this.scale,this.origin_y);
-    ellipse(0,0,10,10,10);
+    // ellipse(0,0,10,10,10);
     //draw the frame
     push()
     strokeWeight(2)
@@ -112,10 +123,30 @@ function modelRenderer(motomodel){
     pop()
     //draw the steering axis
     push()
-    strokeWeight(3)
+    strokeWeight(2)
     translate((this.model.b+this.model.c)*this.scale,0)
     rotate(this.model.lam)
     line(0,0,-3*this.model.Rfw*this.scale,0)
+    pop()
+    //draw the CG for rear frame
+    push()
+    var rcgdia = 10+this.model.mrf/2
+    translate(this.scale*this.model.a,-this.scale*this.model.hrf)
+    fill(255)
+    ellipse(0,0,rcgdia,rcgdia)
+    fill(0)
+    arc(0,0,rcgdia,rcgdia,0,PI/2,PIE)
+    arc(0,0,rcgdia,rcgdia,PI,3*PI/2,PIE)
+    pop()
+    //draw the CG for frone frame
+    push()
+    var fcgdia = 10+this.model.mff
+    translate(this.scale*this.model.xff,-this.scale*this.model.zff)
+    fill(255)
+    ellipse(0,0,fcgdia,fcgdia)
+    fill(0)
+    arc(0,0,fcgdia,fcgdia,0,PI/2,PIE)
+    arc(0,0,fcgdia,fcgdia,PI,3*PI/2,PIE)
     pop()
   }
 }
@@ -204,6 +235,9 @@ function initEigChart(data, refdata, myTitle, xlabel, ylabel) {
     ]
   },
   options: {
+    layout: {
+            padding: 0
+        },
     maintainAspectRatio: false,
     responsive: true,
     scales: {
@@ -246,6 +280,153 @@ eigPlot.update();
 return canv;
 }
 
+function initSteerChart(data, refdata, myTitle, xlabel, ylabel) {
+  // console.log("In Steer Chart Function")
+  canv = document.getElementById("steerchartCanvas");
+  // console.log(canv)
+
+  var config = {  // Chart.js configuration, including the DATASETS data from the model data
+    type: "scatter",
+    title: myTitle,
+
+    data: {
+      datasets: [{
+        pointBackgroundColor: "rgba(0,0,0,.5)",
+        showLine: true,
+        borderWidth: 1,
+        borderColor: "rgba(0,0,0,.5)",
+        fill: false,
+        label: 'current design',
+        pointStyle: false,
+        data: data,
+      },
+      {
+          pointBackgroundColor: "rgba(200,200,200,.5)",
+          showLine: true,
+          borderColor: "rgba(200,200,200,.25)",
+          borderWidth: 1,
+          fill: false,
+          label: 'reference design',
+          pointStyle: false,
+          data: refdata,
+      }
+    ]
+  },
+  options: {
+    layout: {
+            padding: {left: 0, right:-10, top:-30, bottom: -5}
+        },
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      yAxes: [{
+        min: -10,
+        max: 10,
+        scaleLabel: {
+          display: true,
+          labelString: (ylabel),
+        }
+      }],
+      xAxes: [{
+        scaleLabel: {
+          display: true,
+          labelString: (xlabel),
+        }
+      }]
+    },
+    title: {
+      display: true,
+      text: myTitle
+    },
+    plugins: {
+      legend: {
+        labels: {
+          usePointStyle: true
+        }
+      }
+    },
+
+  }
+};
+
+steerChart = new Chart(canv, config);
+
+steerChart.update();
+
+return canv;
+}
+
+function initRollChart(data, refdata, myTitle, xlabel, ylabel) {
+  // console.log("In Roll Chart Function")
+  canv = document.getElementById("rollchartCanvas");
+  // console.log(canv)
+
+  var config = {  // Chart.js configuration, including the DATASETS data from the model data
+    type: "scatter",
+    title: myTitle,
+
+    data: {
+      datasets: [{
+        pointBackgroundColor: "rgba(0,0,0,.5)",
+        showLine: true,
+        borderWidth: 1,
+        borderColor: "rgba(0,0,0,.5)",
+        fill: false,
+        label: 'current design',
+        pointStyle: false,
+        data: data,
+      },
+      {
+          pointBackgroundColor: "rgba(200,200,200,.5)",
+          showLine: true,
+          borderColor: "rgba(200,200,200,.25)",
+          borderWidth: 1,
+          fill: false,
+          label: 'reference design',
+          pointStyle: false,
+          data: refdata,
+      }
+    ]
+  },
+  options: {
+    layout: {
+            padding: {left: 0, right:-10, top:-10, bottom: -30}
+        },
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      yAxes: [{
+        min: -10,
+        max: 10,
+        scaleLabel: {
+          display: true,
+          labelString: (ylabel),
+        }
+      }],
+      xAxes: [{
+        scaleLabel: {
+          display: true,
+          labelString: (xlabel),
+        }
+      }]
+    },
+    title: {
+      display: true,
+      text: myTitle
+    }
+  }
+};
+
+rollChart = new Chart(canv, config);
+// console.log(rollChart)
+
+rollChart.update();
+
+return canv;
+}
+
+
+
 updateEigChart = function(){
   canv = document.getElementById("eigchartCanvas");
   //update eig data
@@ -269,6 +450,12 @@ updateEigChart = function(){
   eigPlot.data.datasets[1].pointBackgroundColor = pointBGColors_active
   eigPlot.data.datasets[1].borderColor = pointBGColors_active
   eigPlot.update()
+  //do another step response and update those plots too
+  stepdata = moto_model.stepResponse(currVel,.1,5,.001)
+  rollChart.data.datasets[0].data = stepdata[0]
+  steerChart.data.datasets[0].data = stepdata[1]
+  rollChart.update()
+  steerChart.update()
   renderer.model = moto_model
 }
 
@@ -310,7 +497,7 @@ xf_slider.oninput = function(){
 
 zf_slider.oninput = function(){
   zf = this.value/1000.0;
-  moto_model.zf = zf
+  moto_model.zff = zf
   document.getElementById("zf_sliderval").innerHTML = str(zf)
   // print(moto_model.hrf)
   updateEigChart()
@@ -394,6 +581,8 @@ lam_slider.oninput = function(){
 
 v_slider.oninput = function(){
   v = this.value/10.0;
+  currVel = v;
+  rollChart.options.title.text = "Response to 0.1 Nm Step in Handlebar Torque at "+str(currVel)+" m/s"
   moto_model.v = v
   document.getElementById("v_sliderval").innerHTML = str(v)
   // print(moto_model.hrf)

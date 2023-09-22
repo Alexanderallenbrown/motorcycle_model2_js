@@ -34,7 +34,10 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
 <body>
   <h1>4th-Order Point-Mass Motorcycle Model</h1>
   <p style="text-align: center"> Nominal parameters are based on Lafayette College's autonomous Razor MX350 electric minibike <br>
-  Note that this model describes "hands-free" uncontrolled riding; no robotic or human steering or leaning!</p>
+    Note that this model describes "hands-free" uncontrolled riding; no robotic or human steering or leaning!
+    <br>
+    Assumptions include no tire slip, knife-edged tires, two independent frames (fork and rear), small lean/steering angles, no longitudinall accel/decel.
+  </p>
 
   <div id="table-top" style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
     <div style="display: table-row; height: 25vw">
@@ -44,101 +47,108 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
 
       <small>
 
-      <div style="display: table-cell; vertical-align: top; width: 20vw; height: 250px; background: none; padding: 1em">
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Forward Speed: <label id="v_sliderval" style="text-align:center" display="inline" float="right">4.0</label> m/s <br>
-          <input type="range" display="inline-block" min="1" max="100" value="40" class="slider" id="v_slider">
+        <div style="display: table-cell; vertical-align: top; width: 20vw; height: 250px; background: none; padding: 1em">
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Forward Speed: <label id="v_sliderval" style="text-align:center" display="inline" float="right">4.0</label> m/s <br>
+            <input type="range" display="inline-block" min="1" max="100" value="40" class="slider" id="v_slider">
+          </div>
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Rear Frame/Rider CG x (m): <label id="a_sliderval" style="text-align:center" display="inline" float="right">.3386</label> m <br>
+            <input type="range" display="inline-block" min="250" max="500" value="339" class="slider" id="a_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Rear Frame/Rider CG z (m): <label id="h_sliderval" style="text-align:center" display="inline" float="right">.256</label> m <br>
+            <input type="range" display="inline-block" min="125" max="375" value="256" class="slider" id="h_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Rear Frame/Rider mass (kg): <label id="mr_sliderval" style="text-align:center" display="inline" float="right">11</label> kg <br>
+            <input type="range" display="inline-block" min="50" max="250" value="110" class="slider" id="mr_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Front Frame CG X offset: <label id="xf_sliderval" style="text-align:center" display="inline" float="right">-.14</label> m <br>
+            <input type="range" display="inline-block" min="-200" max="200" value="-140" class="slider" id="xf_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Front Frame CG Z Location: <label id="zf_sliderval" style="text-align:center" display="inline" float="right">.46</label> m <br>
+            <input type="range" display="inline-block" min="300" max="500" value="465" class="slider" id="zf_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Front Frame mass: <label id="mf_sliderval" style="text-align:center" display="inline" float="right">2.2</label> kg <br>
+            <input type="range" display="inline-block" min="1" max="500" value="220" class="slider" id="mf_slider">
+          </div>
+
+
         </div>
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Rear Frame/Rider CG x (m): <label id="a_sliderval" style="text-align:center" display="inline" float="right">.3386</label> m <br>
-          <input type="range" display="inline-block" min="0" max="750" value="339" class="slider" id="a_slider">
+        <div style="display: table-cell; vertical-align: top; height: 250px; width= 20vw;background: none; padding: 1em">
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Front Wheel radius: <label id="Rfw_sliderval" style="text-align:center" display="inline" float="right">.159</label> m <br>
+            <input type="range" display="inline-block" min="100" max="250" value="159" class="slider" id="Rfw_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Front Wheel mass: <label id="mfw_sliderval" style="text-align:center" display="inline" float="right">1.5</label> kg <br>
+            <input type="range" display="inline-block" min="1" max="100" value="15" class="slider" id="mfw_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Rear Wheel radius: <label id="Rrw_sliderval" style="text-align:center" display="inline" float="right">.159</label> m <br>
+            <input type="range" display="inline-block" min="100" max="250" value="159" class="slider" id="Rrw_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Rear Wheel mass: <label id="mrw_sliderval" style="text-align:center" display="inline" float="right">2.5</label> kg <br>
+            <input type="range" display="inline-block" min="1" max="100" value="25" class="slider" id="mrw_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Wheelbase: <label id="b_sliderval" style="text-align:center" display="inline" float="right">.767</label> m <br>
+            <input type="range" display="inline-block" min="500" max="1000" value="767" class="slider" id="b_slider">
+          </div>
+
+
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Trail: <label id="c_sliderval" style="text-align:center" display="inline" float="right">.023</label> m <br>
+            <input type="range" display="inline-block" min="100" max="500" value="230" class="slider" id="c_slider">
+          </div>
+
+          <div class="slidecontainer" style="text-align:center" width=75%>
+            Rake Angle: <label id="lam_sliderval" style="text-align:center" display="inline" float="right">25.25</label> degrees <br>
+            <input type="range" display="inline-block" min="1" max="450" value="255" class="slider" id="lam_slider">
+          </div>
+
         </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Rear Frame/Rider CG z (m): <label id="h_sliderval" style="text-align:center" display="inline" float="right">.256</label> m <br>
-          <input type="range" display="inline-block" min="0" max="750" value="256" class="slider" id="h_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Rear Frame/Rider mass (kg): <label id="mr_sliderval" style="text-align:center" display="inline" float="right">11</label> kg <br>
-          <input type="range" display="inline-block" min="1" max="500" value="110" class="slider" id="mr_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Front Frame CG X offset: <label id="xf_sliderval" style="text-align:center" display="inline" float="right">-.14</label> m <br>
-          <input type="range" display="inline-block" min="-300" max="300" value="-140" class="slider" id="xf_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Front Frame CG Z Location: <label id="zf_sliderval" style="text-align:center" display="inline" float="right">.46</label> m <br>
-          <input type="range" display="inline-block" min="1" max="1000" value="465" class="slider" id="zf_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Front Frame mass: <label id="mf_sliderval" style="text-align:center" display="inline" float="right">2.2</label> kg <br>
-          <input type="range" display="inline-block" min="1" max="500" value="220" class="slider" id="mf_slider">
-        </div>
-
-
-      </div>
-      <div style="display: table-cell; vertical-align: top; height: 250px; width= 20vw;background: none; padding: 1em">
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Front Wheel radius: <label id="Rfw_sliderval" style="text-align:center" display="inline" float="right">.159</label> m <br>
-          <input type="range" display="inline-block" min="1" max="1000" value="159" class="slider" id="Rfw_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Front Wheel mass: <label id="mfw_sliderval" style="text-align:center" display="inline" float="right">1.5</label> kg <br>
-          <input type="range" display="inline-block" min="1" max="100" value="15" class="slider" id="mfw_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Rear Wheel radius: <label id="Rrw_sliderval" style="text-align:center" display="inline" float="right">.159</label> m <br>
-          <input type="range" display="inline-block" min="1" max="1000" value="159" class="slider" id="Rrw_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Rear Wheel mass: <label id="mrw_sliderval" style="text-align:center" display="inline" float="right">2.5</label> kg <br>
-          <input type="range" display="inline-block" min="1" max="100" value="25" class="slider" id="mrw_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Wheelbase: <label id="b_sliderval" style="text-align:center" display="inline" float="right">.767</label> m <br>
-          <input type="range" display="inline-block" min="500" max="1000" value="767" class="slider" id="b_slider">
-        </div>
-
-
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Trail: <label id="c_sliderval" style="text-align:center" display="inline" float="right">.023</label> m <br>
-          <input type="range" display="inline-block" min="1" max="1000" value="230" class="slider" id="c_slider">
-        </div>
-
-        <div class="slidecontainer" style="text-align:center" width=75%>
-          Rake Angle: <label id="lam_sliderval" style="text-align:center" display="inline" float="right">25.25</label> degrees <br>
-          <input type="range" display="inline-block" min="1" max="450" value="255" class="slider" id="lam_slider">
-        </div>
-
-      </div>
-    </small>
+      </small>
     </div>
 
   </div>
 
   <div style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
-    <div style="display: table-row; height: 30vw">
-      <div id="plot-holder" style="width: 50vw; display: table-cell; vertical-align: center; height: auto; padding:1em; background: none">
+    <div style="display: table-row; height: 50vh; width: 90vw">
+      <div id="plot-holder" style="position:relative; width: 50%; display: table-cell; vertical-align: top; height: auto; padding:1em; background: none">
         <canvas id="eigchartCanvas"></canvas>
-
-          <!-- Attempt to make a canvas for a plot: -->
-          <!-- <canvas id="eigchartCanvas" style="width: 45vw; height:45vw"></canvas> -->
       </div>
 
+      <div id="stepplot-holder" style="width: 40vw; display: table-cell; vertical-align: top; height: auto; padding:1em; background: none">
+        <div style="position:relative; display:table-row; height: 25vh">
+          <div id="rollplot-holder" style="width: 90vw; display: table-cell; vertical-align: top; height: auto; padding:1em; background: none">
+            <canvas id="rollchartCanvas"></canvas>
+          </div>
+        </div>
+        <div style="display:table-row; height: 25vh">
+          <div id="steerplot-holder" style="width: 90vw; display: table-cell; vertical-align: top; height: auto; padding:1em; background: none">
+            <canvas id="steerchartCanvas"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-
 
   <div style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
     <div style="display: table-row">
@@ -154,7 +164,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
     </div>
   </div>
 
-  <script src="motomodel.js"></script>
-  <script src="sketch.js"></script>
-</body>
-</html>
+    <script src="motomodel.js"></script>
+    <script src="sketch.js"></script>
+  </body>
+  </html>
