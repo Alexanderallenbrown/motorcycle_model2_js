@@ -20,6 +20,8 @@ var v = 4; //m/s, fwd speed
 var eigPlot;
 var rollChart;
 var steerChart;
+Chart.defaults.global.legend.labels.usePointStyle = true;
+
 
 ////////INTERACTIVE ELEMENTS:
 
@@ -263,7 +265,8 @@ function initEigChart(data, refdata, myTitle, xlabel, ylabel) {
     plugins: {
       legend: {
         labels: {
-          usePointStyle: true
+          usePointStyle: true,
+          pointStyleWidth: 1
         }
       }
     },
@@ -343,7 +346,8 @@ function initSteerChart(data, refdata, myTitle, xlabel, ylabel) {
     plugins: {
       legend: {
         labels: {
-          usePointStyle: true
+          usePointStyle: true,
+          pointStyleWidth: 1
         }
       }
     },
