@@ -291,23 +291,25 @@ function initSteerChart(data, refdata, myTitle, xlabel, ylabel) {
 
     data: {
       datasets: [{
-        pointBackgroundColor: "rgba(0,0,0,.5)",
+        pointBackgroundColor: "rgba(0,0,0,1)",
         showLine: true,
-        borderWidth: 1,
-        borderColor: "rgba(0,0,0,.5)",
+        borderWidth: 0,
+        borderColor: "rgba(0,0,0,1)",
         fill: false,
         label: 'current design',
         pointStyle: false,
+        radius: 0,
         data: data,
       },
       {
-          pointBackgroundColor: "rgba(200,200,200,.5)",
+          pointBackgroundColor: "rgba(100,100,100,.75)",
           showLine: true,
-          borderColor: "rgba(200,200,200,.25)",
-          borderWidth: 1,
+          borderColor: "rgba(100,100,100,.75)",
+          borderWidth: 0,
           fill: false,
           label: 'reference design',
           pointStyle: false,
+          radius: 0,
           data: refdata,
       }
     ]
@@ -367,23 +369,25 @@ function initRollChart(data, refdata, myTitle, xlabel, ylabel) {
 
     data: {
       datasets: [{
-        pointBackgroundColor: "rgba(0,0,0,.5)",
+        pointBackgroundColor: "rgba(0,0,0,1)",
         showLine: true,
-        borderWidth: 1,
-        borderColor: "rgba(0,0,0,.5)",
+        borderWidth: 0,
+        borderColor: "rgba(0,0,0,1)",
         fill: false,
         label: 'current design',
         pointStyle: false,
+        radius: 0,
         data: data,
       },
       {
-          pointBackgroundColor: "rgba(200,200,200,.5)",
+          pointBackgroundColor: "rgba(100,100,100,.75)",
           showLine: true,
-          borderColor: "rgba(200,200,200,.25)",
-          borderWidth: 1,
+          borderColor: "rgba(100,100,100,.75)",
+          borderWidth: 0,
           fill: false,
           label: 'reference design',
           pointStyle: false,
+          radius: 0,
           data: refdata,
       }
     ]
