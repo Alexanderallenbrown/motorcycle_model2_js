@@ -32,13 +32,13 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
 <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
 </head>
 <body>
-  <h1>4th-Order Point-Mass Motorcycle Model</h1>
+  <h3 style="text-align: center">4th-Order Point-Mass Motorcycle Model</h1><small>
   <p style="text-align: center"> Nominal parameters are based on Lafayette College's autonomous Razor MX350 electric minibike <br>
     Note that this model describes "hands-free" uncontrolled riding; no robotic or human steering or leaning!
     <br>
     Assumptions include no tire slip, knife-edged tires, two independent frames (fork and rear), small lean/steering angles, no longitudinall accel/decel.
   </p>
-
+</small>
   <div id="table-top" style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
     <div style="display: table-row; height: 25vw">
       <div id="sketch-holder" style="width: 40vw; display: table-cell;vertical-align: top; height: 250px; padding:1em; background: none">
@@ -152,7 +152,8 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
 
   <div style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
     <div style="display: table-row">
-      <h2> How to interpret the eigenvalue plot: </h2>
+      <h3 style="text-align: center"> How to interpret the eigenvalue plot: </h2>
+      <small>
       <p style="text-align: left"> "Eigenvalues" tell us how the system responds to its own stored energy.
         In a spring-mass oscillator, the "eigenvalues" give us the vibration frequency of the system.
         For a system that has exponential behavior, like a turkey heating in the oven, the eigvenvalues tell us how fast the system reaches its steady state.
@@ -161,6 +162,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
         For real eigenvalues or parts of complex eigenvalues, a large negative number means faster decay. Any positive real part of any eigenvalue means that the system is unstable. For the motorcycle, this means the bike will fall over.
         When all of the four eigenvalues in our motorcycle model have negative real parts, it means the bike can stay upright by itself without a rider (think hands-free riding).
       </p>
+    </small>
     </div>
   </div>
 
