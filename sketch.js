@@ -562,10 +562,10 @@ mrw_slider.oninput = function(){
 }
 
 b_slider.oninput = function(){
-  delta = moto_model.xf-moto_model.b
+  delta = moto_model.xff-moto_model.b
   b = this.value/1000.0;
   moto_model.b = b
-  moto_model.xf = b+delta
+  moto_model.xff = b+delta
   document.getElementById("b_sliderval").innerHTML = str(b)
   // print(moto_model.hrf)
   updateEigChart()
