@@ -39,53 +39,66 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
 <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
 </head>
 <body>
+  <div id="intro" style="max-width:750px;margin:auto; text-align:center">
   <h3 style="text-align: center">4th-Order Point-Mass Motorcycle Model</h1><small>
     <p style="text-align: center"> &copy <a href = "https://sites.lafayette.edu/brownaa">Alexander Brown, Ph.D. </a></p>
-  <p style="text-align: center"> Nominal parameters are based on a 2021 Kawasaki KX450 <br>
+    <p style="text-align: center">Nominal parameters are based on a 2021 Kawasaki KX450 <br></p>
+  <p style="text-align: center">
     Note that this model describes the bike's response to steer torque inputs at a CONSTANT forward speed.
-    <br>
     Assumptions include no tire slip, knife-edged tires, two independent frames (fork and rear), small lean/steering angles, no longitudinall accel/decel, no suspension effects.
-
     This model is designed to help with understanding how changing a race bike's rake angle and triple clamp offsets influence how it handles.
-
     By moving the sliders, you can see how the bike's 'free running' behavior is changed; whether the steering becomes 'lighter' or the bike starts to oscillate (head shake), etc.
   </p>
+</div>
 </small>
-  <div id="table-top" style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
-    <div style="display: table-row; height: 25vw">
-      <div id="sketch-holder" style="width: 40vw; display: table-cell;vertical-align: top; height: 250px; padding:1em; background: none">
+  <div id="table-top" style="max-width:750px; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; margin-left: auto; margin-right: auto">
+    <div style="display: table-row; height: 40vh">
+      <div id="sketch-holder" style="width: 50vw; display: table-cell;vertical-align: bottom;text-align:center; height: inherit; padding:1px; background: none">
         <!-- <canvas id="sketch-canvas" style="width: 80vw; height:30vw"> -->
       </div>
 
-      <small>
 
-        <div style="display: table-cell; vertical-align: top; width: 20vw; height: 250px; background: none; padding: 1em">
-          <div class="slidecontainer" style="text-align:center" width=75%>
-            Forward Speed: <label id="v_sliderval" style="text-align:center" display="inline" float="right">4.0</label> m/s <br>
-            <input type="range" display="inline-block" min="1" max="100" value="40" class="slider" id="v_slider">
-          </div>
-          <div class="slidecontainer" style="text-align:center" width=75%>
-            Triple Clamp Offset (mm): <label id="ut_sliderval" style="text-align:center" display="inline" float="right">20</label> m <br>
-            <input type="range" display="inline-block" min="10" max="30" value="20" class="slider" id="ut_slider">
-          </div>
-
-          <div class="slidecontainer" style="text-align:center" width=75%>
-            Rake Angle: <label id="lam_sliderval" style="text-align:center" display="inline" float="right">25.25</label> degrees <br>
-            <input type="range" display="inline-block" min="1" max="450" value="255" class="slider" id="lam_slider">
-          </div>
-
-          <div class="slidecontainer" style="text-align:center" width=75%>
-            Steer Friction/Damping: <label id="bsteer_sliderval" style="text-align:center" display="inline" float="right">0</label> Nms <br>
-            <input type="range" display="inline-block" min="0" max="450" value="0" class="slider" id="bsteer_slider">
-          </div>
-
-        </div>
-      </small>
     </div>
+    <small>
+
+      <div style="display: table-row; vertical-align: top; width: 20vw; height: inherit; background: none; padding: 1em">
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Forward Speed: <label id="v_sliderval" style="text-align:center" display="inline" float="right">15</label> mph <br>
+          <input type="range" display="inline-block" min="40" max="300" value="150" class="slider" id="v_slider">
+        </div>
+        <div class="slidecontainer" style="text-align:center" width=25%>
+          Triple Clamp Offset: <label id="ut_sliderval" style="text-align:center" display="inline" float="right">20</label> mm <br>
+          <input type="range" display="inline-block" min="10" max="30" value="20" class="slider" id="ut_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Rake Angle: <label id="lam_sliderval" style="text-align:center" display="inline" float="right">27.5</label> degrees <br>
+          <input type="range" display="inline-block" min="1" max="450" value="275" class="slider" id="lam_slider">
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Computed Wheelbase: <label id="wheelbaseval" style="text-align:center" display="inline" float="right">58.5</label> in <br>
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Computed Trail: <label id="trailval" style="text-align:center" display="inline" float="right">4.8</label> in <br>
+        </div>
+
+        <div class="slidecontainer" style="text-align:center" width=75%>
+          Steady State steer "heaviness": <label id="sensval" style="text-align:center" display="inline" float="right">0.471</label> Nm/degree <br>
+        </div>
+
+        <!-- <div class="slidecontainer" style="text-align:center" width=75%>
+          Steer Friction/Damping: <label id="bsteer_sliderval" style="text-align:center" display="inline" float="right">0</label> Nms <br>
+          <input type="range" display="inline-block" min="0" max="450" value="0" class="slider" id="bsteer_slider">
+        </div> -->
+
+      </div>
+    </small>
 
   </div>
 
-  <div style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
+  <div style="max-width:750px; display: table; border: solid 1px grey; border-radius: 10px; text-align: center;width: 90vw; margin-left: auto; margin-right: auto">
     <div style="display: table-row; height: 50vh; width: 90vw">
       <div id="plot-holder" style="position:relative; width: 50%; display: table-cell; vertical-align: top; height: auto; padding:1em; background: none">
         <canvas id="eigchartCanvas"></canvas>
@@ -106,11 +119,11 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
     </div>
   </div>
 
-  <div style="width:90vw; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
+  <div style="max-width:750px; display: table; border: solid 1px grey; border-radius: 10px; text-align: center; width: 90vw;margin-left: auto; margin-right: auto">
     <div style="display: table-row">
       <h3 style="text-align: center"> How to interpret the eigenvalue plot: </h2>
       <small>
-      <p style="text-align: left"> "Eigenvalues" tell us how the system responds to its own stored energy.
+      <p style="text-align: left;padding: 1em"> "Eigenvalues" tell us how the system responds to its own stored energy.
         In a spring-mass oscillator, the "eigenvalues" give us the vibration frequency of the system.
         For a system that has exponential behavior, like a turkey heating in the oven, the eigvenvalues tell us how fast the system reaches its steady state.
         In general, systems can have a combination "real" eigenvalues, which represent exponential growth (if the eigenvalue is greater than 0) or decay (if the eigenvalue is less than 0), or "complex" eigenvalues with an imaginary part, which indicate that the system will oscillate.

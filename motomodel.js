@@ -31,18 +31,18 @@ function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,b
   this.buildMDK = function(v){
     //compute wheelbase
     this.xfw = this.xp + this.ut/Math.cos(this.lam) + this.Lf*Math.cos(this.lam) + this.ufx
-    console.log("computed wheelbase: ",this.xfw)
+    // console.log("computed wheelbase: ",this.xfw)
     this.b = this.xfw
-    console.log(this.b)
-    this.zff = this.zp - 0.5*this.Lf*Math.sin(this.lam)//height of front frame mass
-    this.xff = this.xp + 0.5*this.Lf*Math.cos(this.lam)//x position of front frame mass
-    console.log("computed xff: ",this.xff)
-    console.log("computed zff: ",this.zff)
+    // console.log(this.b)
+    this.zff = this.zp+this.ut/Math.sin(this.lam) - 0.5*this.Lf*Math.sin(this.lam)//height of front frame mass
+    this.xff = this.xp + 0.5*this.Lf*Math.cos(this.lam)+this.ut/Math.cos(this.lam)//x position of front frame mass
+    // console.log("computed xff: ",this.xff)
+    // console.log("computed zff: ",this.zff)
     this.c = (this.xp+this.zp/Math.tan(this.lam))-this.xfw
-    console.log("computed trail: ",this.c)
+    // console.log("computed trail: ",this.c)
     //gyroscopic inertias
-    this.Jyyf = this.mfw*Math.pow(this.Rfw,2)
-    this.Jyyr = this.mrw*Math.pow(this.Rrw,2)
+    this.Jyyf = 0.9*this.mfw*Math.pow(this.Rfw,2)
+    this.Jyyr = 0.9*this.mrw*Math.pow(this.Rrw,2)
     //rear frame height
     this.mr = this.mrf+this.mrw
     this.h = (this.mrf*this.hrf+this.mrw*Rrw)/(this.mr)
@@ -89,6 +89,7 @@ function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,b
     Atop = nj.concatenate(nj.zeros([2,2]),nj.identity(2))
     //now do the inversions for derivatives
     negMinv = nj.subtract(nj.zeros([2,2]),inv22(this.M))
+
     MinvK = nj.dot(negMinv,this.K)
     MinvD = nj.dot(negMinv,this.D)
     Abottom = nj.concatenate(MinvK,MinvD)
@@ -99,6 +100,20 @@ function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,b
     Bbottom = nj.dot(inv22(this.M),nj.identity(2))
     this.B4 = nj.concatenate(Btop.T,Bbottom.T).T
     this.getEigs4() //update so we have access to the eigs, and update stability boolean
+
+  }
+
+  this.getSensitivity = function(){
+    if(this.isStable){
+      sens_array = nj.dot(inv22(this.K),nj.array([[0],[1]]))
+      // console.log(sens_array)
+      this.sensitivity_steer = (1.0/(180.0/3.1415*Math.abs(sens_array.selection.data[1]))).toFixed(3)
+
+    }
+    else{
+      this.sensitivity_steer = "N/A (not stable)"
+    }
+    // console.log(this.sensitivity_steer)
   }
 
   this.buildRoadSS4 = function(){
@@ -108,7 +123,7 @@ function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,b
   this.checkStable = function(){
 
     if(this.eigs_re == null) {
-        this.stable= false;
+        this.isStable= false;
         return
      }
       for(var i = 0; i < this.eigs_re.length; i++) {
@@ -146,6 +161,7 @@ function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,b
     var rollvec = []
     var steervec = []
     this.buildSS4(v)
+    this.getSensitivity()
     //we are going to use Euler integration.
     // x(k) = (eye(4)+A*dt)*x(k-1)+B*dt*u(k-1)
     var Ad = nj.add(nj.identity(4),this.A4.multiply(dt))
@@ -188,16 +204,16 @@ function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,b
       //get the eigs
       eigs = this.getEigs4()
       // console.log(eigs)
-      vvec.push(vnow)
-      revec.push({x: vnow,y: eigs[0][0]},
-                {x: vnow,y: eigs[0][1]},
-                {x: vnow,y: eigs[0][2]},
-                {x: vnow,y: eigs[0][3]})
+      vvec.push(vnow/0.447)
+      revec.push({x: vnow/0.447,y: eigs[0][0]},
+                {x: vnow/0.447,y: eigs[0][1]},
+                {x: vnow/0.447,y: eigs[0][2]},
+                {x: vnow/0.447,y: eigs[0][3]})
 
-      imvec.push({x: vnow,y: eigs[1][0]},
-                {x: vnow,y: eigs[1][1]},
-                {x: vnow,y: eigs[1][2]},
-                {x: vnow,y: eigs[1][3]})
+      imvec.push({x: vnow/0.447,y: eigs[1][0]},
+                {x: vnow/0.447,y: eigs[1][1]},
+                {x: vnow/0.447,y: eigs[1][2]},
+                {x: vnow/0.447,y: eigs[1][3]})
       stabilityvec.push(this.isStable)
       stabilityvec.push(this.isStable)
       stabilityvec.push(this.isStable)
@@ -212,7 +228,7 @@ function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,b
   this.updateModel = function(v){
     this.buildSS4(v)
     // this.getEigs4()
-    this.eigdata = this.eigStudy(1,10,.1)
+    this.eigdata = this.eigStudy(1,15,.1)
     if(this.dbg){
       console.log("A matrix: \n"+this.A4.toString())
       console.log("B matrix: \n"+this.B4.toString())

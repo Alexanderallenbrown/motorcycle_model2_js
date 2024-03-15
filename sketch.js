@@ -9,7 +9,7 @@ var a = .48//meters, distance from rear axle to CG in x direction
 var hrf = (mbike*zbike+mrider*zrider)/(mbike+mrider)//meters, rear frame CG height
 console.log("computed hrf: ",hrf)
 
-var xp = 1.09 //distance to top of axis pivot
+var xp = 1.00 //distance to top of axis pivot
 var zp = 1.15 //height of top of axis pivot
 var Lf = 0.93//length of fork from top of clamp to axle
 var ut = 0.02 //m, triple clamp offset
@@ -19,7 +19,7 @@ var Rfw = .68/2
 var mfw = 15 //kg, wheel mass
 var Rrw = .72/2 // radius of real wheel
 var mrw = 15 //mass of rear wheel
-var v = 4; //m/s, fwd speed
+var v = 15*.447; //m/s, fwd speed
 var mrf = mbike+mrider - mff- mfw - mrw//kg, rear frame mass inc. rider
 var bsteer = 0.0
 
@@ -52,13 +52,13 @@ var moto_model = new MotorcycleModel(true,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,
 var moto_model_ref = new MotorcycleModel(true,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,bsteer)
 var renderer;
 // moto_model.updateModel(v)
-var currVel = 4;
-var eigdata = moto_model.eigStudy(1,10,.1)
-var eigdata_ref = moto_model.eigStudy(1,10,.1)
-var stepdata = moto_model.stepResponse(currVel,.1,5,.001)
+var currVel = v;
+var eigdata = moto_model.eigStudy(1,15,.1)
+var eigdata_ref = moto_model.eigStudy(1,15,.1)
+var stepdata = moto_model.stepResponse(currVel,1,15,.001)
 var rolldata = stepdata[0]
 var steerdata = stepdata[1]
-var stepdata_ref = moto_model_ref.stepResponse(currVel,.1,5,.001)
+var stepdata_ref = moto_model_ref.stepResponse(currVel,1,15,.001)
 var rolldata_ref = stepdata_ref[0]
 var steerdata_ref = stepdata_ref[1]
 
@@ -74,13 +74,16 @@ var canvasDiv;
 function setup() {
   //createCanvas(400, 400);
   canvasDiv = document.getElementById('sketch-holder');
-  myWidth = canvasDiv.offsetWidth;
-  myHeight = 300//canvasDiv.offsetHeight;
+  var cw = canvasDiv.offsetWidth;
+  var ch = canvasDiv.offsetHeight;
+  myWidth = Math.min(cw,500);
+  myHeight = Math.min(ch,350);
+  console.log(myWidth,myHeight);
   var sketchCanvas = createCanvas(myWidth,myHeight);
   // console.log(sketchCanvas);
   sketchCanvas.parent("sketch-holder");
-  initEigChart(eigdata, eigdata_ref, "eigenvalues as a function of speed; stable speeds shown in green", "speed (m/s)", "eig (1/s)")
-  initRollChart(rolldata,rolldata_ref,"Response to 0.1 Nm Step in Handlebar Torque at "+str(currVel)+" m/s","Time (s)","Roll Angle (deg)")
+  initEigChart(eigdata, eigdata_ref, "eigenvalues as a function of speed; stable speeds shown in green", "speed (mph)", "eig (1/s)")
+  initRollChart(rolldata,rolldata_ref,"Response to Sudden 1.0 N-m Handlebar Torque at "+(currVel/.447).toFixed()+" mph","Time (s)","Roll Angle (deg)")
   initSteerChart(steerdata,steerdata_ref,"Steer Step Response","Time (s)","Steer Angle (deg)")
   renderer = new modelRenderer(moto_model)
 }
@@ -94,7 +97,7 @@ function draw() {
 
 function modelRenderer(motomodel){
   this.model = motomodel
-  this.scale = myWidth/1.5
+  this.scale = myWidth/3
   this.origin_x = myWidth/1.5
   this.origin_y = 0.75*myHeight
   this.drawCG = function(minSize,sizeScale,x,y){
@@ -106,42 +109,83 @@ function modelRenderer(motomodel){
     //translate to the point where the rear wheel contacts ground
     translate(myWidth/2.0-this.model.b/2*this.scale,this.origin_y);
     // ellipse(0,0,10,10,10);
+    //draw the ground
+    strokeWeight(2)
+    line(-this.model.Rrw*this.scale,0,(this.model.b+this.model.Rfw)*this.scale,0)
+    ///draw front contact patch
+    stroke(150,150,150)
+    ellipse(this.model.b*this.scale,0,5,5)
+    //draw trail intersect
+    ellipse((this.model.b+this.model.c)*this.scale,0,5,5)
+    stroke(0)
     //draw the frame
     push()
     strokeWeight(2)
-    translate(0,-this.model.Rrw*this.scale)
-    line(0,0,this.scale*(this.model.b-this.model.Rfw)/3,0)
-    push()
-    rotate(-PI/4)
-    line(0,0,this.scale*(this.model.b-this.model.Rfw)/3/.707,0)
-    pop()
-    line(this.scale*(this.model.b-this.model.Rfw)/3,0,this.scale*(this.model.b-this.model.Rfw)/3,-(this.model.b-this.model.Rfw)/3*this.scale)
-    rect(this.scale*(this.model.b-this.model.Rfw)/3,0,this.scale*(this.model.b-this.model.Rfw)/3,-this.scale*(this.model.b-this.model.Rfw)/3)
-    translate(this.scale*(this.model.b-this.model.Rfw)*2.0/3,0)
-    triangle(0,0,0,-this.scale*(this.model.b-this.model.Rfw)/3,this.scale*(this.model.b-this.model.Rfw)/3,-this.scale*(this.model.b-this.model.Rfw)/3)
+    var pfendx=this.scale*(-this.model.Rrw);
+    var pfendy = -this.scale*(this.model.zp+this.model.hrf)/2;
+    var pgx = this.scale*(this.model.a)
+    var pgy = -this.scale*(this.model.hrf);
+    var pp2x = this.scale*(this.model.xp+0.2*Math.cos(this.model.lam))
+    var pp2y = -this.scale*(this.model.zp-0.2*Math.sin(this.model.lam))
+    var ppx = this.scale*this.model.xp;
+    var ppy = -this.scale*this.model.zp;
+    var pengx = this.scale*.87
+    var pengy = -this.scale*.3
+    var ppegx = this.scale*this.model.a
+    var ppegy = -this.scale*.3
+    var pfendlx = this.scale*(this.model.a)
+    var pfendly = -this.scale*.65
+    line(pfendx,pfendy,pgx,pgy);
+    line(pfendx,pfendy,pfendlx,pfendly);
+    line(pgx,pgy,ppx,ppy);
+    line(pp2x,pp2y,pengx,pengy);
+    line(pengx,pengy,ppegx,ppegy);
+    line(ppegx,ppegy,pfendlx,pfendly);
     pop()
     //draw the rear wheel
     push()
-    strokeWeight(int(this.model.mrw)*3+1)
-    translate(0,-this.model.Rrw*this.scale);
-    ellipse(0,0,2*this.model.Rrw*this.scale,2*this.model.Rrw*this.scale)
+    var rw_thick = 0.12
+    strokeWeight(int(this.scale*rw_thick))
+    translate(0,-(this.model.Rrw)*this.scale);
+    ellipse(0,0,2*(this.model.Rrw-rw_thick/2)*this.scale,2*(this.model.Rrw-rw_thick/2)*this.scale)
     pop()
     //draw the front wheel
     push()
-    strokeWeight(int(this.model.mfw)*3+1)
-    translate(this.model.b*this.scale,-this.model.Rfw*this.scale);
-    ellipse(0,0,2*this.model.Rfw*this.scale,2*this.model.Rfw*this.scale)
+    var fw_thick = 0.08
+    strokeWeight(int(this.scale*fw_thick))
+    translate(this.model.b*this.scale,-(this.model.Rfw)*this.scale);
+    ellipse(0,0,2*(this.model.Rfw-fw_thick/2)*this.scale,2*(this.model.Rfw-fw_thick/2)*this.scale)
     pop()
     //draw the steering axis
     push()
     strokeWeight(2)
+    stroke(100,100,100)
     translate((this.model.b+this.model.c)*this.scale,0)
-    rotate(this.model.lam)
-    line(0,0,-3*this.model.Rfw*this.scale,0)
+    // rotate(this.model.lam)
+    line(0,0,-this.model.zp/Math.tan(this.model.lam)*this.scale,-this.model.zp*this.scale)
     pop()
+    push()
+    //draw the forks
+    strokeWeight(10)
+    stroke(0,0,0)
+    translate(this.model.xp*this.scale+this.scale*this.model.ut/Math.cos(this.model.lam),-(this.model.zp+this.model.ut/Math.sin(lam))*this.scale)
+    // rotate(-this.model.lam)
+    line(0,0,this.scale*this.model.Lf*Math.cos(this.model.lam),this.scale*this.model.Lf*Math.sin(this.model.lam))
+    pop()
+    //draw the steering axis
+    push()
+    strokeWeight(2)
+    stroke(100,100,100)
+    translate((this.model.b+this.model.c)*this.scale,0)
+    // rotate(this.model.lam)
+    line(0,0,-this.model.zp/Math.tan(this.model.lam)*this.scale,-this.model.zp*this.scale,)
+    pop()
+
+
     //draw the CG for rear frame
     push()
-    var rcgdia = 10+this.model.mrf/2
+    stroke(0)
+    var rcgdia = 30//+this.model.mrf/2
     translate(this.scale*this.model.a,-this.scale*this.model.hrf)
     fill(255)
     ellipse(0,0,rcgdia,rcgdia)
@@ -151,7 +195,7 @@ function modelRenderer(motomodel){
     pop()
     //draw the CG for frone frame
     push()
-    var fcgdia = 10+this.model.mff
+    var fcgdia = 30//+this.model.mff
     translate(this.scale*this.model.xff,-this.scale*this.model.zff)
     fill(255)
     ellipse(0,0,fcgdia,fcgdia)
@@ -159,6 +203,8 @@ function modelRenderer(motomodel){
     arc(0,0,fcgdia,fcgdia,0,PI/2,PIE)
     arc(0,0,fcgdia,fcgdia,PI,3*PI/2,PIE)
     pop()
+
+
   }
 }
 
@@ -220,29 +266,6 @@ function initEigChart(data, refdata, myTitle, xlabel, ylabel) {
         pointStyle: 'cross',
         data: data[2]
       }
-      // },
-      // {
-      //     // xAxisID: "Time (s)",
-      //     // yAxisID: "Output",
-      //     pointBackgroundColor: pointBGColors_ref,
-      //     showLine: false,
-      //     borderColor: pointBGColors_ref,
-      //     fill: true,
-      //     label: 'real',
-      //     pointStyle: 'circle',
-      //     data: refdata[1],
-      // },
-      // {
-      //     // xAxisID: "Time (s)",
-      //     // yAxisID: "Output",
-      //     pointBackgroundColor: pointBGColors_ref,
-      //     showLine: false,
-      //     borderColor: pointBGColors_ref,
-      //     fill: true,
-      //     label: 'imaginary',
-      //     pointStyle: 'cross',
-      //     data: refdata[2]
-      // }
     ]
   },
   options: {
@@ -252,9 +275,11 @@ function initEigChart(data, refdata, myTitle, xlabel, ylabel) {
     maintainAspectRatio: false,
     responsive: true,
     scales: {
-      yAxes: [{
+      y:{
         min: -10,
-        max: 10,
+        max:10,
+      },
+      yAxes: [{
         scaleLabel: {
           display: true,
           labelString: (ylabel),
@@ -319,7 +344,7 @@ function initSteerChart(data, refdata, myTitle, xlabel, ylabel) {
           borderColor: "rgba(100,100,100,.75)",
           borderWidth: 0,
           fill: false,
-          label: 'reference design',
+          label: 'reference (stock) design',
           pointStyle: false,
           radius: 0,
           data: refdata,
@@ -398,7 +423,7 @@ function initRollChart(data, refdata, myTitle, xlabel, ylabel) {
           borderColor: "rgba(100,100,100,.75)",
           borderWidth: 0,
           fill: false,
-          label: 'reference design',
+          label: 'reference (stock) design',
           pointStyle: false,
           radius: 0,
           data: refdata,
@@ -447,7 +472,7 @@ return canv;
 updateEigChart = function(){
   canv = document.getElementById("eigchartCanvas");
   //update eig data
-  eigdata = moto_model.eigStudy(1,10,.1)
+  eigdata = moto_model.eigStudy(1,15,.1)
   eigPlot.data.datasets[0].data = eigdata[1]
   eigPlot.data.datasets[1].data = eigdata[2]
   //point colors to indicate stability:
@@ -468,8 +493,8 @@ updateEigChart = function(){
   eigPlot.data.datasets[1].borderColor = pointBGColors_active
   eigPlot.update()
   //do another step response and update those plots too
-  stepdata = moto_model.stepResponse(currVel,.1,5,.001)
-  stepdata_ref = moto_model_ref.stepResponse(currVel,.1,5,.001)
+  stepdata = moto_model.stepResponse(currVel,1,15,.001)
+  stepdata_ref = moto_model_ref.stepResponse(currVel,1,15,.001)
   rollChart.data.datasets[0].data = stepdata[0]
   steerChart.data.datasets[0].data = stepdata[1]
   rollChart.data.datasets[1].data = stepdata_ref[0]
@@ -484,6 +509,9 @@ ut_slider.oninput = function(){
   ut = this.value/1000.0;
   moto_model.ut = ut
   document.getElementById("ut_sliderval").innerHTML = str(ut*1000.0)
+  document.getElementById("sensval").innerHTML = moto_model.sensitivity_steer
+  document.getElementById("wheelbaseval").innerHTML = (moto_model.b/0.0254).toFixed(2)
+  document.getElementById("trailval").innerHTML = (moto_model.c/0.0254).toFixed(2)
   updateEigChart()
   //print("wheel pos udpate: " +str(this.value))
 }
@@ -493,27 +521,33 @@ lam_slider.oninput = function(){
   lam = 3.1415/2.0-rake;
   moto_model.lam = lam
   document.getElementById("lam_sliderval").innerHTML = (rake*180/3.1415).toFixed()
+  document.getElementById("sensval").innerHTML = moto_model.sensitivity_steer
+  document.getElementById("wheelbaseval").innerHTML = (moto_model.b/0.0254).toFixed(2)
+  document.getElementById("trailval").innerHTML = (moto_model.c/0.0254).toFixed(2)
   // print(moto_model.hrf)
   updateEigChart()
   //print("wheel pos udpate: " +str(this.value))
 }
 
 v_slider.oninput = function(){
-  v = this.value/10.0;
+  v = this.value/10.0*0.447;
   currVel = v;
-  rollChart.options.title.text = "Response to 0.1 Nm Step in Handlebar Torque at "+str(currVel)+" m/s"
+  rollChart.options.title.text = "Response to Sudden 1.0 Nm Handlebar Torque at "+(currVel/.447).toFixed()+" mph"
   moto_model.v = v
-  document.getElementById("v_sliderval").innerHTML = str(v)
+  document.getElementById("v_sliderval").innerHTML = ((1.0/.447)*v).toFixed()
+  document.getElementById("sensval").innerHTML = moto_model.sensitivity_steer
+  document.getElementById("wheelbaseval").innerHTML = (moto_model.b/0.0254).toFixed(2)
+  document.getElementById("trailval").innerHTML = (moto_model.c/0.0254).toFixed(2)
   // print(moto_model.hrf)
   updateEigChart()
   //print("wheel pos udpate: " +str(this.value))
 }
 
-bsteer_slider.oninput = function(){
-  bsteer = this.value/100.0;
-  moto_model.bsteer = bsteer
-  document.getElementById("bsteer_sliderval").innerHTML = str(bsteer)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
+// bsteer_slider.oninput = function(){
+//   bsteer = this.value/100.0;
+//   moto_model.bsteer = bsteer
+//   document.getElementById("bsteer_sliderval").innerHTML = str(bsteer)
+//   // print(moto_model.hrf)
+//   updateEigChart()
+//   //print("wheel pos udpate: " +str(this.value))
+// }
