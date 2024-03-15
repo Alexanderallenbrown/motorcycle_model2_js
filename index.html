@@ -8,6 +8,7 @@
   div {text-align: left;}
 </style>
 <title>4th Order Point-Mass Motorcycle Model</title>
+
 <meta property="og:title" content="Interactive Motorcycle Model">
   <meta name="twitter:title" content="Interactive Motorcycle Model">
 
@@ -44,8 +45,9 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
     <p style="text-align: center"> &copy <a href = "https://sites.lafayette.edu/brownaa">Alexander Brown, Ph.D. </a></p>
     <p style="text-align: center">Nominal parameters are based on a 2021 Kawasaki KX450 <br></p>
   <p style="text-align: center">
-    Note that this model describes the bike's response to steer torque inputs at a CONSTANT forward speed.
-    Assumptions include no tire slip, knife-edged tires, two independent frames (fork and rear), small lean/steering angles, no longitudinall accel/decel, no suspension effects.
+  This model describes a bike's response to steer torque inputs at a CONSTANT forward speed.
+    Model Assumptions include no tire slip, knife-edged tires, two independent frames (fork and rear), small lean/steering angles, no longitudinall accel/decel, no suspension effects.
+    For detailed information about the model and a full derivation, see <a href="https://alexanderallenbrown.github.io/motorcycle_model_fourth">this link.</a>
     This model is designed to help with understanding how changing a race bike's rake angle and triple clamp offsets influence how it handles.
     By moving the sliders, you can see how the bike's 'free running' behavior is changed; whether the steering becomes 'lighter' or the bike starts to oscillate (head shake), etc.
   </p>
@@ -135,7 +137,13 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
     </div>
   </div>
 
+  <div id="logo" style="max-width:750px;margin:auto; text-align:center">
+    <img src="assets/drive.png" alt="drivelab">
+  </div>
+
     <script src="motomodel.js"></script>
     <script src="sketch.js"></script>
+
+
   </body>
   </html>
