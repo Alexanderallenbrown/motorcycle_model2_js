@@ -1,22 +1,19 @@
-function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
+function MotorcycleModel(dbg,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,bsteer){
+  this.xp = xp //x distance from rear axle to top of triple clamp pivot
+  this.zp = zp //height of top of triple clamp pivot
+  this.ut = ut //triple clamp offset
+  this.ufx = ufx //fork/axle offset along x direction
+  this.Lf = Lf //length of forks at static from top of clamp to axle
   this.dbg= dbg
   this.g = 9.81
   //angle from ground to steer axis
   this.lam = lam
   //dist from rear axle to CG (x)
   this.a = a
-  //wheelbase
-  this.b = b
-  //trail (on ground, x)
-  this.c = c
   //rear CG height
   this.hrf = hrf
   //rear frame mass
-  this.mrf = mr
-  //dist to front frame CG from rear axle
-  this.xff = xff
-  this.yff = yff
-  this.zff = zff
+  this.mrf = mrf
   //front fork mass
   this.mff = mff
   //front wheel radius
@@ -27,11 +24,22 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
   this.Rrw = Rrw
   //rear wheel mass
   this.mrw = mrw
+  this.bsteer = bsteer
 
 
 
   this.buildMDK = function(v){
-    this.xfw = this.b
+    //compute wheelbase
+    this.xfw = this.xp + this.ut/Math.cos(this.lam) + this.Lf*Math.cos(this.lam) + this.ufx
+    console.log("computed wheelbase: ",this.xfw)
+    this.b = this.xfw
+    console.log(this.b)
+    this.zff = this.zp - 0.5*this.Lf*Math.sin(this.lam)//height of front frame mass
+    this.xff = this.xp + 0.5*this.Lf*Math.cos(this.lam)//x position of front frame mass
+    console.log("computed xff: ",this.xff)
+    console.log("computed zff: ",this.zff)
+    this.c = (this.xp+this.zp/Math.tan(this.lam))-this.xfw
+    console.log("computed trail: ",this.c)
     //gyroscopic inertias
     this.Jyyf = this.mfw*Math.pow(this.Rfw,2)
     this.Jyyr = this.mrw*Math.pow(this.Rrw,2)
@@ -56,9 +64,9 @@ function MotorcycleModel(dbg,lam,a,b,c,hrf,mrf,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw){
     M22 = this.mf*Math.pow(this.u,2)+2*this.mf*this.xf*this.u*this.c*Math.sin(this.lam)/this.b + Math.pow(this.c,2)*Math.pow(Math.sin(this.lam),2)/Math.pow(this.b,2)*(this.mr*Math.pow(this.a,2)+this.mf*Math.pow(this.xf,2))
 
     D11 = 0
-    D12 = -v*Math.sin(this.lam)/this.b*(this.mr*this.h*this.a+this.mf*this.xf*this.hf)-St*v*this.c*Math.sin(lam)/b-Sr*v*Math.sin(lam)
+    D12 = -v*Math.sin(this.lam)/this.b*(this.mr*this.h*this.a+this.mf*this.xf*this.hf)-St*v*this.c*Math.sin(lam)/this.b-Sr*v*Math.sin(lam)
     D21 = (St*v*this.c*Math.sin(this.lam)/this.b + Sf*v*Math.sin(this.lam))
-    D22 = v*Math.sin(this.lam)/this.b*(this.mf*this.xf*this.u + this.c*Math.sin(this.lam)/this.b*((this.mr*Math.pow(a,2) + this.mf*Math.pow(this.xf,2))+this.mr*this.a*this.c+this.mf*this.xf*this.c)) + this.mf*this.u*v*this.c*Math.sin(this.lam)/this.b
+    D22 = v*Math.sin(this.lam)/this.b*(this.mf*this.xf*this.u + this.c*Math.sin(this.lam)/this.b*((this.mr*Math.pow(a,2) + this.mf*Math.pow(this.xf,2))+this.mr*this.a*this.c+this.mf*this.xf*this.c)) + this.mf*this.u*v*this.c*Math.sin(this.lam)/this.b + this.bsteer
 
     K11 = -this.g*(this.mr*this.h+this.mf*this.u)
     K12 = -Math.pow(v,2)*Math.sin(this.lam)/this.b*( this.mr*this.h+this.mf*this.hf)+(this.mf*this.xf+this.mr*this.a)*this.g*this.c*Math.sin(this.lam)/this.b+this.mf*this.g*this.u - Math.pow(v,2)*St*Math.sin(this.lam)/this.b

@@ -1,20 +1,28 @@
 //////// TEST ///////
-var lam = 1.13
-var hrf = .25606
-var a = .3386//meters, distance from rear axle to CG in x direction
-var b = .767//meters, wheelbase of bike
-var c = .023//.08//meters, trail
-var hrf = .25606//meters, rear frame CG height
-var mr = 11.065//kg, rear frame mass inc. rider
-var xff = .62218//position of front frame CG
-var yff = 0
-var zff = .46531
-var mff = 2.2047 //kg, fork mass
-var Rfw = .15875
-var mfw = 1.486 //kg, wheel mass
-var Rrw = 0.15875 // radius of real wheel
-var mrw = 2.462 //mass of rear wheel
+var mbike = 100// kg, approx total weight of kx
+var zbike = 0.7//m, height of rear frame CG no rider
+var mrider = 70//kg, approx weight of rider
+var zrider = 1.4 //m, approx height of CG of seated rider (1.09 seat + 0.3 to belly button)
+
+var lam = 1.089
+var a = .48//meters, distance from rear axle to CG in x direction
+var hrf = (mbike*zbike+mrider*zrider)/(mbike+mrider)//meters, rear frame CG height
+console.log("computed hrf: ",hrf)
+
+var xp = 1.09 //distance to top of axis pivot
+var zp = 1.15 //height of top of axis pivot
+var Lf = 0.93//length of fork from top of clamp to axle
+var ut = 0.02 //m, triple clamp offset
+var ufx = 0.02//m, fork-axle offset in x direction
+var mff = 15 //kg, fork mass
+var Rfw = .68/2
+var mfw = 15 //kg, wheel mass
+var Rrw = .72/2 // radius of real wheel
+var mrw = 15 //mass of rear wheel
 var v = 4; //m/s, fwd speed
+var mrf = mbike+mrider - mff- mfw - mrw//kg, rear frame mass inc. rider
+var bsteer = 0.0
+
 
 /////eigenvalue plot
 var eigPlot;
@@ -40,8 +48,8 @@ var b_slider = document.getElementById("b_slider");
 var lam_slider = document.getElementById("lam_slider");
 var v_slider = document.getElementById("v_slider");
 
-var moto_model = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
-var moto_model_ref = new MotorcycleModel(true,lam,a,b,c,hrf,mr,xff,yff,zff,mff,Rfw,mfw,Rrw,mrw)
+var moto_model = new MotorcycleModel(true,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,bsteer)
+var moto_model_ref = new MotorcycleModel(true,lam,a,xp,zp,ut,ufx,Lf,hrf,mrf,mff,Rfw,mfw,Rrw,mrw,bsteer)
 var renderer;
 // moto_model.updateModel(v)
 var currVel = 4;
@@ -472,111 +480,10 @@ updateEigChart = function(){
 }
 
 
-a_slider.oninput = function(){
-  a = this.value/1000.0;
-  moto_model.a = a
-  document.getElementById("a_sliderval").innerHTML = str(a)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-h_slider.oninput = function(){
-  h = this.value/1000.0;
-  moto_model.hrf = h
-  document.getElementById("h_sliderval").innerHTML = str(h)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-mr_slider.oninput = function(){
-  mr = this.value/10.0;
-  moto_model.mrf = mr
-  document.getElementById("mr_sliderval").innerHTML = str(mr)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-xf_slider.oninput = function(){
-  xf = this.value/1000.0;
-  moto_model.xff = xf+moto_model.b
-  document.getElementById("xf_sliderval").innerHTML = str(xf)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-zf_slider.oninput = function(){
-  zf = this.value/1000.0;
-  moto_model.zff = zf
-  document.getElementById("zf_sliderval").innerHTML = str(zf)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-mf_slider.oninput = function(){
-  mf = this.value/100.0;
-  moto_model.mff = mf
-  document.getElementById("mf_sliderval").innerHTML = str(mf)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-Rfw_slider.oninput = function(){
-  Rfw = this.value/1000.0;
-  moto_model.Rfw = Rfw
-  document.getElementById("Rfw_sliderval").innerHTML = str(Rfw)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-mfw_slider.oninput = function(){
-  mfw = this.value/10.0;
-  moto_model.mfw = mfw
-  document.getElementById("mfw_sliderval").innerHTML = str(mfw)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-Rrw_slider.oninput = function(){
-  Rrw = this.value/1000.0;
-  moto_model.Rrw = Rrw
-  document.getElementById("Rrw_sliderval").innerHTML = str(Rrw)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-mrw_slider.oninput = function(){
-  mrw = this.value/10.0;
-  moto_model.mrw = mrw
-  document.getElementById("mrw_sliderval").innerHTML = str(mrw)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-b_slider.oninput = function(){
-  delta = moto_model.xff-moto_model.b
-  b = this.value/1000.0;
-  moto_model.b = b
-  moto_model.xff = b+delta
-  document.getElementById("b_sliderval").innerHTML = str(b)
-  // print(moto_model.hrf)
-  updateEigChart()
-  //print("wheel pos udpate: " +str(this.value))
-}
-
-c_slider.oninput = function(){
-  c = this.value/10000.0;
-  moto_model.c = c
-  document.getElementById("c_sliderval").innerHTML = str(c)
-  // print(moto_model.hrf)
+ut_slider.oninput = function(){
+  ut = this.value/1000.0;
+  moto_model.ut = ut
+  document.getElementById("ut_sliderval").innerHTML = str(ut*1000.0)
   updateEigChart()
   //print("wheel pos udpate: " +str(this.value))
 }
@@ -597,6 +504,15 @@ v_slider.oninput = function(){
   rollChart.options.title.text = "Response to 0.1 Nm Step in Handlebar Torque at "+str(currVel)+" m/s"
   moto_model.v = v
   document.getElementById("v_sliderval").innerHTML = str(v)
+  // print(moto_model.hrf)
+  updateEigChart()
+  //print("wheel pos udpate: " +str(this.value))
+}
+
+bsteer_slider.oninput = function(){
+  bsteer = this.value/100.0;
+  moto_model.bsteer = bsteer
+  document.getElementById("bsteer_sliderval").innerHTML = str(bsteer)
   // print(moto_model.hrf)
   updateEigChart()
   //print("wheel pos udpate: " +str(this.value))
