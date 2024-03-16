@@ -46,7 +46,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
     <p style="text-align: center">Nominal parameters are based on a 2021 Kawasaki KX450 <br></p>
   <p style="text-align: center">
   This model describes a bike's response to steer torque inputs at a CONSTANT forward speed.
-    Model Assumptions include no tire slip, knife-edged tires, two independent frames (fork and rear), small lean/steering angles, no longitudinall accel/decel, no suspension effects.
+    Model Assumptions include (among others): no tire slip, knife-edged tires, two independent frames (fork and rear), small lean/steer angles, no longitudinal accel/decel, no suspension effects.
     For detailed information about the model and a full derivation, see <a href="https://alexanderallenbrown.github.io/motorcycle_model_fourth">this link.</a>
     This model is designed to help with understanding how changing a race bike's rake angle and triple clamp offsets influence how it handles.
     By moving the sliders, you can see how the bike's 'free running' behavior is changed; whether the steering becomes 'lighter' or the bike starts to oscillate (head shake), etc.
@@ -89,6 +89,10 @@ src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-
         <div class="slidecontainer" style="text-align:center" width=75%>
           Steady State steer "heaviness": <label id="sensval" style="text-align:center" display="inline" float="right">0.471</label> Nm/degree <br>
         </div>
+
+        <!-- <div class="slidecontainer" style="text-align:center" width=75%>
+          Steady State steer "heaviness": <label id="percentval" style="text-align:center" display="inline" float="right">0.471</label> Nm/degree <br>
+        </div> -->
 
         <!-- <div class="slidecontainer" style="text-align:center" width=75%>
           Steer Friction/Damping: <label id="bsteer_sliderval" style="text-align:center" display="inline" float="right">0</label> Nms <br>
